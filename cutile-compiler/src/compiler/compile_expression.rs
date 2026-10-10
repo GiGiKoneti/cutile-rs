@@ -1554,7 +1554,13 @@ impl<'m> CUDATileFunctionCompiler<'m> {
 
                 // start >= 0, unless proven above.
                 if start_exact.is_none() {
-                    let zero = self.compile_constant(module, block_id, generic_vars, 0)?;
+                    let zero = self.compile_constant(
+                        module,
+                        block_id,
+                        generic_vars,
+                        0,
+                        &ranges_expr.span(),
+                    )?;
                     emit_range_assert(
                         self,
                         module,
@@ -1601,7 +1607,13 @@ impl<'m> CUDATileFunctionCompiler<'m> {
                     // Explicit length: len >= 0 and start + len <= grid,
                     // unless both are static.
                     if len_exact.is_none() {
-                        let zero = self.compile_constant(module, block_id, generic_vars, 0)?;
+                        let zero = self.compile_constant(
+                            module,
+                            block_id,
+                            generic_vars,
+                            0,
+                            &ranges_expr.span(),
+                        )?;
                         emit_range_assert(
                             self,
                             module,
@@ -1811,7 +1823,13 @@ impl<'m> CUDATileFunctionCompiler<'m> {
                     )
                 })?);
             } else {
-                let zero = self.compile_constant(module, loop_block_id, generic_vars, 0i32)?;
+                let zero = self.compile_constant(
+                    module,
+                    loop_block_id,
+                    generic_vars,
+                    0i32,
+                    &for_expr.span(),
+                )?;
                 bids.push(zero);
             }
         }
@@ -2141,8 +2159,8 @@ impl<'m> CUDATileFunctionCompiler<'m> {
             }
         };
 
-        let zero = self.compile_constant(module, block_id, generic_vars, 0i32)?;
-        let one = self.compile_constant(module, block_id, generic_vars, 1i32)?;
+        let zero = self.compile_constant(module, block_id, generic_vars, 0i32, &for_expr.span())?;
+        let one = self.compile_constant(module, block_id, generic_vars, 1i32, &for_expr.span())?;
         let lower_bound = zero.value.ok_or_else(|| {
             self.jit_error(
                 &for_expr.span(),
@@ -2404,7 +2422,7 @@ impl<'m> CUDATileFunctionCompiler<'m> {
                         };
                         val
                     } else {
-                        self.compile_constant(module, block_id, generic_vars, 1)?
+                        self.compile_constant(module, block_id, generic_vars, 1, &for_expr.span())?
                     };
                     let step = step_value.value.ok_or_else(|| {
                         self.jit_error(

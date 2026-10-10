@@ -275,7 +275,7 @@ impl<'m> CUDATileFunctionCompiler<'m> {
         let at_last_iteration = (scale > 0) == matches!(extreme, Extreme::Strongest);
         let mut instance = if at_last_iteration {
             let upper_value = TileRustValue::new_primitive(upper, index_ty.clone(), None);
-            let one = self.compile_constant(module, check_block, generic_vars, 1)?;
+            let one = self.compile_constant(module, check_block, generic_vars, 1, span)?;
             self.compile_binary_op_from_values(
                 module,
                 check_block,
@@ -292,7 +292,7 @@ impl<'m> CUDATileFunctionCompiler<'m> {
         };
         if scale != 1 {
             let scale_value =
-                self.compile_constant(module, check_block, generic_vars, scale as i32)?;
+                self.compile_constant(module, check_block, generic_vars, scale as i32, span)?;
             instance = self.compile_binary_op_from_values(
                 module,
                 check_block,
@@ -307,7 +307,7 @@ impl<'m> CUDATileFunctionCompiler<'m> {
         }
         if offset != 0 {
             let offset_value =
-                self.compile_constant(module, check_block, generic_vars, offset as i32)?;
+                self.compile_constant(module, check_block, generic_vars, offset as i32, span)?;
             instance = self.compile_binary_op_from_values(
                 module,
                 check_block,
@@ -430,7 +430,7 @@ impl<'m> CUDATileFunctionCompiler<'m> {
             }
         }
         let tile_dim_value =
-            self.compile_constant(module, check_block, generic_vars, goals.tile)?;
+            self.compile_constant(module, check_block, generic_vars, goals.tile, span)?;
         // Upper goal operand: the strongest instance of the index.
         let index_instance = match hoist_kind {
             Some(HoistIndex::InductionAffine {
@@ -456,7 +456,7 @@ impl<'m> CUDATileFunctionCompiler<'m> {
                 )?
             }
             Some(HoistIndex::Const { max, .. }) => {
-                self.compile_constant(module, check_block, generic_vars, *max)?
+                self.compile_constant(module, check_block, generic_vars, *max, span)?
             }
             // An in-place check (and a hoisted loop-invariant one) tests the
             // index's ACTUAL value. A check stays in place precisely when the
@@ -476,7 +476,7 @@ impl<'m> CUDATileFunctionCompiler<'m> {
                 let extent = goals
                     .static_extent
                     .expect("residual check without a dynamic extent has a static one");
-                self.compile_constant(module, check_block, generic_vars, extent)?
+                self.compile_constant(module, check_block, generic_vars, extent, span)?
             }
         };
         // Compute ceil_div(shape, tile) as `shape / tile + min(shape % tile, 1)`
@@ -509,7 +509,7 @@ impl<'m> CUDATileFunctionCompiler<'m> {
             None,
             span,
         )?;
-        let one = self.compile_constant(module, check_block, generic_vars, 1)?;
+        let one = self.compile_constant(module, check_block, generic_vars, 1, span)?;
         let carry = self.compile_binary_op_from_values(
             module,
             check_block,
@@ -569,7 +569,7 @@ impl<'m> CUDATileFunctionCompiler<'m> {
                 )?,
                 _ => goals.index.clone(),
             };
-            let zero = self.compile_constant(module, check_block, generic_vars, 0)?;
+            let zero = self.compile_constant(module, check_block, generic_vars, 0, span)?;
             let lower_ok = self.compile_binary_op_from_values(
                 module,
                 check_block,

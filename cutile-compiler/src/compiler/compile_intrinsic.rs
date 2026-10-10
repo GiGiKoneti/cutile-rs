@@ -242,7 +242,8 @@ impl<'m> CUDATileFunctionCompiler<'m> {
             let offset = if ratio == 1 {
                 pid
             } else {
-                let ratio_value = self.compile_constant(module, block_id, generic_vars, ratio)?;
+                let ratio_value =
+                    self.compile_constant(module, block_id, generic_vars, ratio, span)?;
                 self.compile_binary_op_from_values(
                     module,
                     block_id,
@@ -2511,7 +2512,7 @@ impl<'m> CUDATileFunctionCompiler<'m> {
             (bid_m, bid_n)
         } else if swizzle_n_value == 1 {
             let swizzle_m =
-                self.compile_constant(module, block_id, generic_vars, swizzle_m_value)?;
+                self.compile_constant(module, block_id, generic_vars, swizzle_m_value, span)?;
             let num_bid_in_m_band = self.compile_binary_op_from_values(
                 module,
                 block_id,
@@ -2625,9 +2626,9 @@ impl<'m> CUDATileFunctionCompiler<'m> {
             (bid_m, bid_n)
         } else {
             let swizzle_m =
-                self.compile_constant(module, block_id, generic_vars, swizzle_m_value)?;
+                self.compile_constant(module, block_id, generic_vars, swizzle_m_value, span)?;
             let swizzle_n =
-                self.compile_constant(module, block_id, generic_vars, swizzle_n_value)?;
+                self.compile_constant(module, block_id, generic_vars, swizzle_n_value, span)?;
             let num_bid_in_m_band = self.compile_binary_op_from_values(
                 module,
                 block_id,

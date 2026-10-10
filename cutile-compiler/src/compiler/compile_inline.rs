@@ -186,12 +186,23 @@ impl<'m> CUDATileFunctionCompiler<'m> {
             self.add_module_const_vars(&mut call_generic_vars);
             // Add function call const generics as variables.
             for (key, value) in call_generic_vars.ordered_inst_i32() {
-                let tr_val = self.compile_constant(module, block_id, &call_generic_vars, value)?;
+                let tr_val = self.compile_constant(
+                    module,
+                    block_id,
+                    &call_generic_vars,
+                    value,
+                    &call_expr.span(),
+                )?;
                 call_variables.vars.insert(key.to_string(), tr_val);
             }
             for (key, value) in call_generic_vars.ordered_inst_bool() {
-                let tr_val =
-                    self.compile_bool_constant(module, block_id, &call_generic_vars, value)?;
+                let tr_val = self.compile_bool_constant(
+                    module,
+                    block_id,
+                    &call_generic_vars,
+                    value,
+                    &call_expr.span(),
+                )?;
                 call_variables.vars.insert(key.to_string(), tr_val);
             }
             // Add function call CGAs arrays as variables.
@@ -425,11 +436,23 @@ impl<'m> CUDATileFunctionCompiler<'m> {
 
             // Add method call const generics as variables.
             for (key, value) in call_generic_vars.ordered_inst_i32() {
-                let tr_val = self.compile_constant(module, block_id, generic_vars, value)?;
+                let tr_val = self.compile_constant(
+                    module,
+                    block_id,
+                    generic_vars,
+                    value,
+                    &method_call_expr.span(),
+                )?;
                 call_variables.vars.insert(key.to_string(), tr_val);
             }
             for (key, value) in call_generic_vars.ordered_inst_bool() {
-                let tr_val = self.compile_bool_constant(module, block_id, generic_vars, value)?;
+                let tr_val = self.compile_bool_constant(
+                    module,
+                    block_id,
+                    generic_vars,
+                    value,
+                    &method_call_expr.span(),
+                )?;
                 call_variables.vars.insert(key.to_string(), tr_val);
             }
             for (key, value) in call_generic_vars.ordered_inst_array() {
